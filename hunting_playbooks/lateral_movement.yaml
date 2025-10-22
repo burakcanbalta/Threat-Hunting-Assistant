@@ -1,0 +1,34 @@
+name: lateral_movement
+description: "Detect lateral movement techniques across the network"
+techniques: ["T1021", "T1076", "T1080"]
+mitre_attack: ["Lateral Movement"]
+priority: "HIGH"
+
+queries:
+  elasticsearch:
+    - "event.action:(\"remote*\" OR \"psexec\" OR \"wmi*\")"
+    - "process.name:(\"psexec*\" OR \"wmic*\" OR \"schtasks*\")"
+    - "network.protocol:(\"SMB\" OR \"RDP\" OR \"WinRM\")"
+  
+  splunk:
+    - "index=* (\"PsExec\" OR \"WMIC\" OR \"schtasks\")"
+    - "index=network (protocol=\"SMB\" OR protocol=\"RDP\")"
+
+iocs:
+  - "SMB connections between workstations"
+  - "RDP sessions from unusual sources"
+  - "WMI executions from administrative workstations"
+  - "PsExec usage from non-admin systems"
+
+indicators:
+  behavioral:
+    - "Multiple failed authentication attempts followed by success"
+    - "SMB connections to multiple hosts in short time"
+    - "RDP sessions outside business hours"
+  
+  temporal:
+    - "Rapid sequential logins to different systems"
+    - "Concurrent sessions from same source"
+
+confidence_threshold: 0.7
+false_positive_notes: "Legitimate administrative activities may trigger"
